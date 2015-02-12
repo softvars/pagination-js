@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>Demo page for pagination</title>
+		<meta name="description" content="Pagination demo">
+		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+        <meta name="Keywords" content="pagination, pagination demo page , demo page pagination, js pagination, javascript pagination" />
+        <meta name="author" content="Prakash Subramani" />
+        <script src="pagination.js"></script>
+        <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+        <style>
+            #char-code-list-orgin{
+                display: none;
+            }
+            a{
+                text-decoration: none;
+            }
+        </style>
+		<script type="text/javascript">
+            $(function(){
+                $("#convert_char").on('click', function(){
+                    var val = $('#char_input').val();
+                    $('#char_to_code_output').val('&#' + val.charCodeAt() + ';')
+                });
+                $("#convert_code").on('click', function(){
+                    var val = $('#code_input').val();
+                    $('#code_to_char_output').html('&#' + val + ';')
+                });
+                //65534
+                var spanArray = [];
+                for(var i = 0; i < 1000; i ++)
+                {
+                    spanArray.push(i + ': <span id="'+i+'"> &#' + i + '; </span></br>');
+                }
+                
+                var arr = spanArray;
+                var paging = Pagination();
+                var config = {result: arr, perPage: 100};
+                paging.init(config);
+                data = paging.getPage(1);
+                
+                var pageNumHtml = '', rang = paging.getPageRange();
+                for(var pageNum = 1; pageNum < rang.length; pageNum ++)
+                {
+                    pageNumHtml += "<span" + (paging.current==pageNum  ? " class='current'" : "") + 
+                        "><a href='#' data-state='" + pageNum +"'>"+pageNum+"</a></span>";
+                }
+                $('.page-nums').html(pageNumHtml);
+                $('#char-code-list').html(data.join(''));
+                
+                /* Pagination*/
+                $(document.body).on('click', '.paging a', function(e){
+                    var $this = $(this);
+                    /*var $thisParent = $this.parent('.disabled, .current');
+                    if($thisParent.length > 0) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }*/
+                    var state = $this.data('state');
+                    var data = [];
+
+                    switch(state)
+                    {
+                        case 'prev':
+                            data = paging.getPreviousPage();
+                            break;
+                        case 'next':
+                            data = paging.getNextPage();
+                            break;
+                        default:
+                            if(isFinite(state) && !isNaN(parseFloat(state))) {
+                                data = paging.getPage(state);
+                            }
+                    }
+                    if(data.length) {
+                        $('#char-code-list').html(data.join(''));
+                    }
+                });
+            });
+        </script>
+	</head>
+	<body>
+		<div id="drawer-menu">
+            <div class="row">
+                <div class="col-sm-12">
+                    <form method="POST" class="form_char_to_code" action="" >
+                        <fieldset>
+                            <!--label for="title">Enter the Characters</label-->
+                            <input type="text" name="char_input" id="char_input" placeholder="Enter the character to convert.." />
+                            <input type="button" id="convert_char" name="Convert" value="Convert"/>
+                            <input type="text" id="char_to_code_output" />
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <form method="POST" class="form_code_to_char" action="" >
+                        <fieldset>
+                            <!--label for="title">Enter the Characters</label-->
+                            <input type="text" name="code_input" id="code_input" placeholder="Enter the code to convert.." />
+                            <input type="button" id="convert_code" name="Convert" value="Convert"/>
+                            <span type="text" id="code_to_char_output"></span>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="paging">
+            <div>
+                <a href="#" data-state="prev" title="Previous">&lt;</a>
+            </div>
+            <div class="page-nums"></div>
+            <div>
+                <a href="#" data-state="next" title="Next">&gt;</a>
+            </div>
+        </div>
+        <div id="char-code-list"></div>
+        <div id="char-code-list-orgin"></div>
+    </body>
+</html>
