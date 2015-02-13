@@ -1,30 +1,34 @@
 (function() {
-    function isExist(obj)
-    {
+    function isExist(obj) {
         return typeof obj !== "undefined";
     }
-
-    function isEmpty(obj)
-    {
+    function isEmpty(obj) {
         return typeof obj === "undefined"  || obj === null || obj === '';
     }
 
+    function isNumber(obj) {
+        return toString.call(obj) === '[object Number]';
+    }
+    var isArray = Array.isArray || function(obj) {
+        return  toString.call(obj) === '[object Array]';
+    }
+    
     var Pagination = function(o){
         o = o || {};
         //if (o instanceof Pagination) return o;
         if (!(this instanceof Pagination)){
             return new Pagination(o);
         }
-        //this.offset = o.offset && o.offset > 0 ? o.offset : 0;
-        this.offset = 0;
-        this.perPage = 10;
+        this.offset = isNumber(o.offset) && o.offset > 0 ? o.offset : 0;
+        this.perPage = isNumber(o.perPage) && o.perPage > 0 ? o.perPage : 10;
         this.lastPageSize = null;
-        this.result = [];
+        this.result = isArray(o.result) ? o.result : [];
         this.total = null;
         this.pageCount = null;
         this.current = 1;
         this.rangeLength = 11;
         this.rangeStaticPos = null;
+        this.init(o);
     };
 
     Pagination.prototype.init = function(config){
@@ -35,8 +39,11 @@
             if(config.perPage) {
                 this.perPage = config.perPage ;
             }
+            if(config.offset) {
+                this.offset = config.offset ;
+            }
         }
-        this.offset = 0;
+        //this.offset = 0;
         this.current = 1;
         this.rangeStaticPos = Math.ceil(this.rangeLength / 2);
 

@@ -36,9 +36,9 @@
                 }
                 
                 var arr = spanArray;
-                var paging = Pagination();
                 var config = {result: arr, perPage: 100};
-                paging.init(config);
+                var paging = Pagination(config);
+                //paging.init(config);
                 data = paging.getPage(1);
                 
                 var pageNumHtml = '', rang = paging.getPageRange();
