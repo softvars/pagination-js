@@ -1,23 +1,25 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
+        <title>Demo page for pagination</title>
+        
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<title>Demo page for pagination</title>
 		<meta name="description" content="Pagination demo">
 		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
         <meta name="Keywords" content="pagination, pagination demo page , demo page pagination, js pagination, javascript pagination" />
         <meta name="author" content="Prakash Subramani" />
+        
         <script src="pagination.js"></script>
-        <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+        <script src="jquery-1.11.2.min.js"></script>
+        <!--<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>-->
+        
         <style>
-            #char-code-list-orgin{
-                display: none;
-            }
-            a{
-                text-decoration: none;
-            }
+            a { text-decoration: none; }
+            #char-code-list-orgin{ display: none; }
+            .current{ font-weight: bold; }
         </style>
+        
 		<script type="text/javascript">
             $(function(){
                 $("#convert_char").on('click', function(){
@@ -30,16 +32,21 @@
                 });
                 //65534
                 var spanArray = [];
-                for(var i = 0; i < 1000; i ++)
+                for(var i = 0; i < 2000; i ++)
                 {
                     spanArray.push(i + ': <span id="'+i+'"> &#' + i + '; </span></br>');
                 }
-                
                 var arr = spanArray;
-                var config = {result: arr, perPage: 100};
-                var paging = Pagination(config);
-                //paging.init(config);
-                data = paging.getPage(1);
+                
+                var config = {};
+                var paging = Pagination({
+                    data: arr, 
+                    perPage: 100,
+                    concat: true,
+                    concatWith: ' '
+                });
+                //paging.process(config);
+                pagedata = paging.getPage(1);
                 
                 var pageNumHtml = '', rang = paging.getPageRange();
                 for(var pageNum = 1; pageNum < rang.length; pageNum ++)
@@ -48,7 +55,7 @@
                         "><a href='#' data-state='" + pageNum +"'>"+pageNum+"</a></span>";
                 }
                 $('.page-nums').html(pageNumHtml);
-                $('#char-code-list').html(data.join(''));
+                $('#char-code-list').html(pagedata.join(''));
                 
                 /* Pagination*/
                 $(document.body).on('click', '.paging a', function(e){
@@ -60,23 +67,23 @@
                         return false;
                     }*/
                     var state = $this.data('state');
-                    var data = [];
+                    var pagedata = [];
 
                     switch(state)
                     {
                         case 'prev':
-                            data = paging.getPreviousPage();
+                            pagedata = paging.getPreviousPage();
                             break;
                         case 'next':
-                            data = paging.getNextPage();
+                            pagedata = paging.getNextPage();
                             break;
                         default:
                             if(isFinite(state) && !isNaN(parseFloat(state))) {
-                                data = paging.getPage(state);
+                                pagedata = paging.getPage(state);
                             }
                     }
-                    if(data.length) {
-                        $('#char-code-list').html(data.join(''));
+                    if(pagedata.length) {
+                        $('#char-code-list').html(pagedata.join(''));
                     }
                 });
             });
