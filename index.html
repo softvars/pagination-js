@@ -46,8 +46,8 @@
                     concatWith: ' '
                 });
                 //paging.process(config);
-                pagedata = paging.getPage(1);
                 
+                /* Rendering Ranges */
                 var pageNumHtml = '', rang = paging.getPageRange();
                 for(var pageNum = 1; pageNum < rang.length; pageNum ++)
                 {
@@ -55,9 +55,12 @@
                         "><a href='#' data-state='" + pageNum +"'>"+pageNum+"</a></span>";
                 }
                 $('.page-nums').html(pageNumHtml);
+                
+                /* Rendering Page*/
+                pagedata = paging.getPage(1);
                 $('#char-code-list').html(pagedata.join(''));
                 
-                /* Pagination*/
+                /* Pagination */
                 $(document.body).on('click', '.paging a', function(e){
                     var $this = $(this);
                     /*var $thisParent = $this.parent('.disabled, .current');
