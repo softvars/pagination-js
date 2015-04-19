@@ -1,14 +1,10 @@
 (function() {
-    function isValidNum(obj, def) {
-        return toString.call(obj) === '[object Number]' && obj > 0 ? obj : def;
-    }
-    var isArray = Array.isArray || function(obj) {
-        return  toString.call(obj) === '[object Array]';
-    };
-    /*
-    var isString = function(obj) { // rem it
-        return  toString.call(obj) === '[object String]';
-    };*/
+    var PUtil = {
+        isArray:  Array.isArray, //TD: H2U
+        isValidNum: function (obj, def) {
+            return Number(obj) && obj > 0 ? obj : def;
+        }
+    };    
     
     var Pagination = function(o){
         if (!(this instanceof Pagination)){
@@ -24,13 +20,13 @@
         this.current = 1;
         this.rangeLength = 11;
         this.rangeStaticPos = null;
-        
+
         this.process = function(o){
             if(o) {
-                this.data = isArray(o.data)? o.data : this.data;
-                this.perPage = isValidNum(o.perPage, this.perPage);
-                this.offset = isValidNum(o.offset, this.offset);
-                this.rangeLength = isValidNum(o.rangeLength, this.rangeLength);
+                this.data = PUtil.isArray(o.data)? o.data : this.data;
+                this.perPage = PUtil.isValidNum(o.perPage, this.perPage);
+                this.offset = PUtil.isValidNum(o.offset, this.offset);
+                this.rangeLength = PUtil.isValidNum(o.rangeLength, this.rangeLength);
             }
             this.total = this.data && this.data.length > 0 ? this.data.length : 0;
             this.lastPageSize = this.total % this.perPage;
@@ -62,9 +58,9 @@
                     var staticPos = this.rangeStaticPos;
                     var staticPosRest = this.rangeLength - staticPos;
                     var isBeforeStaticPos = this.current <= staticPos;
-                    start = isBeforeStaticPos ? 1 : (this.current < (this.pageCount - staticPosRest) ? 
+                    start = isBeforeStaticPos ? 1 : (this.current < (this.pageCount - staticPosRest) ?
                                 (this.current - staticPos) + 1: this.pageCount - this.rangeLength);
-                    stop = (isBeforeStaticPos ? this.rangeLength : (this.current < (this.pageCount - staticPosRest) ? 
+                    stop = (isBeforeStaticPos ? this.rangeLength : (this.current < (this.pageCount - staticPosRest) ?
                                 (this.current + staticPosRest): this.pageCount) ) + 1;
                 } else {
                     var isRangeEndWithInPageCount = (this.current + this.rangeLength) <  this.pageCount ;
@@ -101,22 +97,53 @@
             return toRet;
         };
 
+        this.isValidPageNum = function(num){
+            return num > 0 && num <= this.pageCount;
+        };
+
         this.getPage = function(pageNumber){
             var toRet = [];
-            this.current = pageNumber;
-            this.offset = (pageNumber-1) * this.perPage;
-            var perPage = (this.isTail() ? this.lastPageSize : this.perPage);
-            if(pageNumber === 1) {
-                toRet = this.data.slice(0, perPage);
-            }
-            else if (pageNumber > 1 && pageNumber <= this.pageCount) {
+            pageNumber = Number(pageNumber);
+            if (this.isValidPageNum(pageNumber)) {
+                this.current = pageNumber; // TD: have to create prop update config object
+                this.offset = (pageNumber-1) * this.perPage;
+                var perPage = (this.isTail() ? this.lastPageSize : this.perPage);
                 toRet = this.data.slice(this.offset, this.offset + perPage);
+                this.offset += perPage;
             }
-            this.offset += this.perPage;
+            return toRet;
+        };        
+
+        this.getPrevRangePage = function() {
+            var toRet = [];
+            if (this.hasPreviousPage()) {
+                pageNumber = this.current - this.rangeLength ;
+                pageNumber = pageNumber > 0 ? pageNumber : 1;
+                toRet = this.getPage(pageNumber);
+            }
             return toRet;
         };
-        
+
+        this.getNextRangePage = function(){
+            var toRet = [];
+            if(this.hasNextPage()) {
+                pageNumber = this.current + this.rangeLength ;
+                pageNumber = pageNumber > this.pageCount ? this.pageCount : pageNumber;
+                toRet = this.getPage(pageNumber);
+            }
+            return toRet;
+        };
+
+        this.getFirstPage = function(){
+            return this.getPage(1);
+        };
+
+        this.getLastPage = function(){
+            return this.getPage(this.pageCount);
+        };
+
         this.process(o);
     };
     this.Pagination = Pagination;
+    this.PUtil = PUtil;
 }.call(this));

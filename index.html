@@ -5,23 +5,62 @@
         
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="description" content="Pagination demo">
+        
+        <meta name="description" content="HTML Codes - Table for easy reference of ascii characters and symbols in HTML format. With indication of browser support"/>
+        <meta name="keywords" content="HTML codes, character entities, character set, ASCII, ascii, ASCII Codes, ASCII codes, ascii codes, ascii code table, ascii characters, ascii symbols, conversion, binary, decimal, dec, hexadecimal, hex, octal, table, tables, ISO, code charts, html editing, markup, code charts, w3c, w3.org, standards, Standard ASCII set, ISO 10646, ISO 8879, ISO 8859-1 Latin alphabet No. 1, browser support, netscape, internet explorer, HTML Entity names"/>  
+        <meta name="abstract" content="If you want to display certain characters such as &gt; or &copy; literally on a web page, you need to know about entity characters" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+        <meta http-equiv="content-script-type" content="text/javascript"/>
+        <meta http-equiv="Content-Language" content="en">
+        <meta name="is-dotcom" content="true">
+        <meta name="hostname" content="github.com">
+        <meta name="user-login" content="">
+        
+		<!--<meta name="description" content="Pagination demo">-->
 		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
         <meta name="Keywords" content="pagination, pagination demo page , demo page pagination, js pagination, javascript pagination" />
         <meta name="author" content="Prakash Subramani" />
+        <meta name="application-name" content="HTML Codes and Symbols" />
         
         <script src="pagination.js"></script>
+        <script src="pagination.ui.js"></script>
         <script src="jquery-1.11.2.min.js"></script>
         <!--<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>-->
         
         <style>
+            body {
+              display: block;
+              margin: 8px;
+            }
             a { text-decoration: none; }
             #char-code-list-orgin{ display: none; }
             .current{ font-weight: bold; }
+            
+            .page-nums span {
+              margin-left: 3px;
+              margin-right: 3px;
+            }
+            
+            #char-code-list div {
+              margin: 6px;
+              float: left;
+              width: 80px;
+              height: 80px;
+              background-color: lavender;
+              border: 1px solid pink;
+              position: relative;
+            }
+            #char-code-list div span {
+                font-size: 50px;
+                padding: 0;
+/*              margin: 5px;*/
+                position: absolute;
+            }
         </style>
         
 		<script type="text/javascript">
-            $(function(){
+            $(function() {
                 $("#convert_char").on('click', function(){
                     var val = $('#char_input').val();
                     $('#char_to_code_output').val('&#' + val.charCodeAt() + ';')
@@ -30,64 +69,24 @@
                     var val = $('#code_input').val();
                     $('#code_to_char_output').html('&#' + val + ';')
                 });
-                //65534
+                /* 65534 2000 */
                 var spanArray = [];
-                for(var i = 0; i < 2000; i ++)
+                for(var i = 0; i < 65534; i ++)
                 {
-                    spanArray.push(i + ': <span id="'+i+'"> &#' + i + '; </span></br>');
+                    spanArray.push('<div><span id="'+i+'"> &#' + i + '; </span></div>');
                 }
                 var arr = spanArray;
                 
                 var config = {};
-                var paging = Pagination({
+                //var paging = Pagination({
+                var paging = Pagination_UI({
                     data: arr, 
-                    perPage: 100,
+                    perPage: 200,
+                    rangeLength: 21,
+                    dataDiv: '#char-code-list',
+                    pageNumDiv: '.page-nums',
                     concat: true,
                     concatWith: ' '
-                });
-                //paging.process(config);
-                
-                /* Rendering Ranges */
-                var pageNumHtml = '', rang = paging.getPageRange();
-                for(var pageNum = 1; pageNum < rang.length; pageNum ++)
-                {
-                    pageNumHtml += "<span" + (paging.current==pageNum  ? " class='current'" : "") + 
-                        "><a href='#' data-state='" + pageNum +"'>"+pageNum+"</a></span>";
-                }
-                $('.page-nums').html(pageNumHtml);
-                
-                /* Rendering Page*/
-                pagedata = paging.getPage(1);
-                $('#char-code-list').html(pagedata.join(''));
-                
-                /* Pagination */
-                $(document.body).on('click', '.paging a', function(e){
-                    var $this = $(this);
-                    /*var $thisParent = $this.parent('.disabled, .current');
-                    if($thisParent.length > 0) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return false;
-                    }*/
-                    var state = $this.data('state');
-                    var pagedata = [];
-
-                    switch(state)
-                    {
-                        case 'prev':
-                            pagedata = paging.getPreviousPage();
-                            break;
-                        case 'next':
-                            pagedata = paging.getNextPage();
-                            break;
-                        default:
-                            if(isFinite(state) && !isNaN(parseFloat(state))) {
-                                pagedata = paging.getPage(state);
-                            }
-                    }
-                    if(pagedata.length) {
-                        $('#char-code-list').html(pagedata.join(''));
-                    }
                 });
             });
         </script>
@@ -121,11 +120,9 @@
         </div>
         <div class="paging">
             <div>
-                <a href="#" data-state="prev" title="Previous">&lt;</a>
+				<div class="page-nums"></div>
             </div>
-            <div class="page-nums"></div>
-            <div>
-                <a href="#" data-state="next" title="Next">&gt;</a>
+            <div> 
             </div>
         </div>
         <div id="char-code-list"></div>
