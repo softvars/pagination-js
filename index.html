@@ -60,6 +60,7 @@
         </style>
         
 		<script type="text/javascript">
+            var paging = null;
             $(function() {
                 $("#convert_char").on('click', function(){
                     var val = $('#char_input').val();
@@ -78,15 +79,14 @@
                 var arr = spanArray;
                 
                 var config = {};
-                //var paging = Pagination({
-                var paging = Pagination_UI({
+
+                paging = Pagination_UI({
                     data: arr, 
-                    perPage: 200,
+                    perPage: 100,
                     rangeLength: 21,
-                    dataDiv: '#char-code-list',
-                    pageNumDiv: '.page-nums',
-                    concat: true,
-                    concatWith: ' '
+                    dataContainer: '#char-code-list',
+                    pageNumContainer: '.page-nums',
+                    concat: true
                 });
             });
         </script>

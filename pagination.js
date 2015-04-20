@@ -1,10 +1,57 @@
 (function() {
-    var PUtil = {
-        isArray:  Array.isArray, //TD: H2U
+    var toString = Object.prototype.toString;
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
+    var __ = {
+        isArray: Array.isArray || function(obj) {
+            return toString.call(obj) === '[object Array]';
+        },
+        has: function(obj, key) {
+            return hasOwnProperty.call(obj, key);
+        },
         isValidNum: function (obj, def) {
-            return Number(obj) && obj > 0 ? obj : def;
+            return __.isNumber(obj) && obj > 0 ? obj : def;
+        },
+        keys: function (obj) {
+          var result = [], prop;
+          for (prop in obj) {
+            if (hasOwnProperty.call(obj, prop)) {
+              result.push(prop);
+            }
+          }
+          return result;
+        },
+        mergeIt: function(o, a) {
+            if(__.isObject(o)) {
+                var isKeyMap = __.isObject(a);
+                b = __.isArray(a) ? a : (__.isString(a) ? [a] : ( isKeyMap ? __.keys(a) : __.keys(o)) );
+                if(__.isArray(b)) {
+                    for(i in b) {
+                        var prop = b[i];
+                        if(__.has(o, prop)) {
+                            var value = o[prop];
+                            var isValid = !isKeyMap ? true : ( __.isFunction(a[prop]) ? a[prop].call(this, value) : true);
+                            if(isValid) {
+                                this[prop] = __.isObject(value) ? __.mergeIt.call(this[prop], value) : value;
+                            }
+                        }
+                    }
+                }
+            }
+            return this;
         }
-    };    
+    };
+    
+    (function(){
+        //var f = ['Arguments', 'Function', 'Object', 'Boolean', 'String', 'Number', 'Date', 'RegExp'];
+        var f = ['Function', 'Object', 'String', 'Number'];
+        for(idx in f) {
+            (function(name) {
+                __['is' + name] = function(obj) {
+                    return toString.call(obj) === '[object ' + name + ']';
+                };
+            })(f[idx]);
+        };
+    })();
     
     var Pagination = function(o){
         if (!(this instanceof Pagination)){
@@ -22,12 +69,14 @@
         this.rangeStaticPos = null;
 
         this.process = function(o){
-            if(o) {
-                this.data = PUtil.isArray(o.data)? o.data : this.data;
-                this.perPage = PUtil.isValidNum(o.perPage, this.perPage);
-                this.offset = PUtil.isValidNum(o.offset, this.offset);
-                this.rangeLength = PUtil.isValidNum(o.rangeLength, this.rangeLength);
-            }
+            var keyMap = { 
+                'data': __.isArray, 
+                'perPage': __.isValidNum, 
+                'offset': __.isValidNum, 
+                'rangeLength': __.isValidNum
+            };
+            __.mergeIt.call(this, o, keyMap);
+            
             this.total = this.data && this.data.length > 0 ? this.data.length : 0;
             this.lastPageSize = this.total % this.perPage;
             this.pageCount = this.total ? Math.floor(this.total / this.perPage) + (this.lastPageSize ? 1 : 0) : 0;
@@ -35,7 +84,7 @@
             this.current = 1;
         };
 
-        this.hasPreviousPage = function(){
+        this.hasPreviousPage = function() {
             return this.current > 1 ;
         };
 
@@ -105,7 +154,7 @@
             var toRet = [];
             pageNumber = Number(pageNumber);
             if (this.isValidPageNum(pageNumber)) {
-                this.current = pageNumber; // TD: have to create prop update config object
+                this.current = pageNumber;
                 this.offset = (pageNumber-1) * this.perPage;
                 var perPage = (this.isTail() ? this.lastPageSize : this.perPage);
                 toRet = this.data.slice(this.offset, this.offset + perPage);
@@ -145,5 +194,5 @@
         this.process(o);
     };
     this.Pagination = Pagination;
-    this.PUtil = PUtil;
+    this.__ = __;
 }.call(this));

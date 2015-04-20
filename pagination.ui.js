@@ -1,7 +1,4 @@
 (function() {
-    function isContains(obj, key) {
-        return obj.hasOwnProperty(key);
-    }
     var Pagination_UI = function(o){
         if (!(this instanceof Pagination_UI)) {
             return new Pagination_UI(o);
@@ -9,18 +6,14 @@
         o = o || {};
         Pagination.call(this, o);
         
-        this.dataDiv = null;
-        this.pageNumDiv = null;
+        this.dataContainer = null;
+        this.pageNumContainer = null;
+        this.renderType = 'array-concat'; // template
         this.concat = false;
-        this.concatWith = null;
-
+        this.concatWith = "";
+        
         this.init = function(o){
-            if(o) {
-                this.dataDiv =  isContains(o, 'dataDiv') ? o.dataDiv : this.dataDiv;
-                this.pageNumDiv = isContains(o, 'pageNumDiv') ? o.pageNumDiv : this.pageNumDiv;
-                this.concat = isContains(o, 'concat') && o.concat ? o.concat : this.concat;
-                this.concatWith = isContains(o, 'concatWith') ? o.concatWith : this.concatWith;
-            }
+            __.mergeIt.call(this, o, ['dataContainer', 'pageNumContainer', 'concat', 'concatWith']);
             this.renderPage(1);
             this.addEventHandlers();
         };
@@ -42,16 +35,20 @@
             pageNumHtml += '<span'+nextClsName+'><a href="#" id="next-page-link" data-state="next" title="Next">&gt;</a></span>';
             pageNumHtml += '<span'+nextClsName+'><a href="#" id="next-range-first-page-link" data-state="next-range" title="Next Range">&gt;&gt;</a></span>';
             pageNumHtml += '<span'+nextClsName+'><a href="#" id="last-page-link" data-state="last" title="Last">&gt;|</a></span>';
-            $(this.pageNumDiv).html(pageNumHtml);
+            $(this.pageNumContainer).html(pageNumHtml);
         };
 
         /* Page */
         this.createHtml = function(data) {
-            var pageNumHtml = '';
-            if(PUtil.isArray(data) && data.length) { //else if object
-                pageNumHtml = data.join(this.concatWith ? this.concatWith : ''); // Concat, template.
+            var html = '';
+            var isValidArr = __.isArray(data) && data.length;
+            var isValidObject = __.isObject(data) && __.keys(data).length;
+            if(this.concat && isValidArr) { //else if object
+                html = data.join(this.concatWith); // Concat, template.
+            } else {
+                _.isFunction()
             }
-            return pageNumHtml;
+            return html;
         };
         
         this.stateMap = {
@@ -67,7 +64,7 @@
             var fn = this.stateMap[state];
             var pageData = (fn ? this[fn]() : !(isNaN(Number(state))) ? this.getPage(state) : []);
             if(pageData.length) {
-                $(this.dataDiv).html(this.createHtml(pageData));
+                $(this.dataContainer).html(this.createHtml(pageData));
                 this.renderPageNumbers();
             }
             return pageData;
@@ -76,7 +73,7 @@
         /* Pagination */
         this.addEventHandlers = function() {
             var thisObj = this;
-            $(document.body).on('click', thisObj.pageNumDiv+' a', function(e){
+            $(document.body).on('click', thisObj.pageNumContainer+' a', function(e) {
                 var $this = $(this);
                 var $thisParent = $this.parent('.disabled, .current');
                 if($thisParent.length > 0) {
