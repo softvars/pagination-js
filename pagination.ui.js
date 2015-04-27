@@ -9,11 +9,12 @@
         this.dataContainer = null;
         this.pageNumContainer = null;
         this.renderType = 'array-concat'; // template
-        this.concat = false;
+        this.concat = true;
+        this.template = null;
         this.concatWith = "";
         
         this.init = function(o){
-            __.mergeIt.call(this, o, ['dataContainer', 'pageNumContainer', 'concat', 'concatWith']);
+            __.mergeIt.call(this, o, ['dataContainer', 'pageNumContainer', 'template', 'concat', 'concatWith']);
             this.renderPage(1);
             this.addEventHandlers();
         };
@@ -24,17 +25,17 @@
             var rang = this.getPageRange();
             var prevClsName = this.hasPreviousPage() ? '' : ' class="disabled"'; 
             var nextClsName = this.hasNextPage() ? '': ' class="disabled"'; 
-            pageNumHtml += '<span'+prevClsName+'><a href="#" id="first-page-link" data-state="first" title="First">|&lt;</a></span>';
-            pageNumHtml += '<span'+prevClsName+'><a href="#" id="prev-range-first-page-link" data-state="prev-range" title="Previous Range">&lt;&lt;</a></span>';
-            pageNumHtml += '<span'+prevClsName+'><a href="#" id="prev-page-link" data-state="prev" title="Previous">&lt;</a></span>';
+            pageNumHtml += '<span'+prevClsName+'><a href="#first" id="first-page-link" data-state="first" title="First">|&lt;</a></span>';
+            pageNumHtml += '<span'+prevClsName+'><a href="#prev-range" id="prev-range-first-page-link" data-state="prev-range" title="Previous Range">&lt;&lt;</a></span>';
+            pageNumHtml += '<span'+prevClsName+'><a href="#prev" id="prev-page-link" data-state="prev" title="Previous">&lt;</a></span>';
             for(var idx = 0; idx < rang.length; idx ++) {
                 var pageNum = rang[idx];
                 pageNumHtml += "<span" + (this.current == pageNum  ? " class='current'" : "") + 
                     "><a href='#page_" + pageNum +"' data-state='" + pageNum +"'>"+pageNum+"</a></span>";
             }
-            pageNumHtml += '<span'+nextClsName+'><a href="#" id="next-page-link" data-state="next" title="Next">&gt;</a></span>';
-            pageNumHtml += '<span'+nextClsName+'><a href="#" id="next-range-first-page-link" data-state="next-range" title="Next Range">&gt;&gt;</a></span>';
-            pageNumHtml += '<span'+nextClsName+'><a href="#" id="last-page-link" data-state="last" title="Last">&gt;|</a></span>';
+            pageNumHtml += '<span'+nextClsName+'><a href="#next" id="next-page-link" data-state="next" title="Next">&gt;</a></span>';
+            pageNumHtml += '<span'+nextClsName+'><a href="#next-range" id="next-range-first-page-link" data-state="next-range" title="Next Range">&gt;&gt;</a></span>';
+            pageNumHtml += '<span'+nextClsName+'><a href="#last" id="last-page-link" data-state="last" title="Last">&gt;|</a></span>';
             $(this.pageNumContainer).html(pageNumHtml);
         };
 
@@ -43,10 +44,13 @@
             var html = '';
             var isValidArr = __.isArray(data) && data.length;
             var isValidObject = __.isObject(data) && __.keys(data).length;
+            
             if(this.concat && isValidArr) { //else if object
                 html = data.join(this.concatWith); // Concat, template.
             } else {
-                _.isFunction()
+                if(__.isFunction(this.template)) {
+                    html = this.template(data);
+                }
             }
             return html;
         };
